@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 
 export default async function handler(req, res) {
-  // Autoriser CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -21,16 +20,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Champs manquants" });
     }
 
-    // Transporter Gmail
+    console.log("🚀 Tentative d'envoi d'email...");
+    console.log("📧 User:", process.env.GMAIL_USER ? "OK" : "MISSING");
+    console.log("🔑 Pass:", process.env.GMAIL_PASS ? "OK" : "MISSING");
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS, // ton mot de passe d'application
+        pass: process.env.GMAIL_PASS,
       },
     });
 
-    // Envoi du mail
     const info = await transporter.sendMail({
       from: `"ToolShare" <${process.env.GMAIL_USER}>`,
       to,
@@ -38,8 +39,10 @@ export default async function handler(req, res) {
       text: content,
     });
 
+    console.log("✅ Email envoyé :", info.messageId);
     res.status(200).json({ success: true, id: info.messageId });
   } catch (err) {
+    console.error("❌ Erreur SMTP :", err);
     res.status(500).json({ error: "Erreur serveur", details: err.message });
   }
 }
