@@ -25,12 +25,15 @@ export default async function handler(req, res) {
     console.log("🔑 Pass:", process.env.GMAIL_PASS ? "OK" : "MISSING");
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true pour le port 465
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
       },
     });
+
 
     const info = await transporter.sendMail({
       from: `"ToolShare" <${process.env.GMAIL_USER}>`,
